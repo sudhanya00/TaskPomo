@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Ledger paper. Kept in step with lib/theme.dart. -->
+    <color name="paper">#F5F3EE</color>
+    <color name="ink">#1E1D1A</color>
+    <color name="muted">#8B867C</color>
+    <color name="hairline">#171E1D1A</color>
+    <color name="ink_soft">#8C1E1D1A</color>
+    <color name="ink_faint">#4D1E1D1A</color>
+    <color name="rust">#B5643F</color>
+</resources>

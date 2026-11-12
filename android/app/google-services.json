@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "177004992959",
+    "project_id": "taskpomo-d5f21f",
+    "storage_bucket": "taskpomo-d5f21f.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:177004992959:android:229ee73abc9f4ed8f4e90a",
+        "android_client_info": {
+          "package_name": "com.sudhanya.taskpomo"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCKL4z7uKefBL1eQBY7dQlxASYx0idDZ9Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Ledger paper aged 40% (see lib/logic/paper.dart, Ledger.oldPaper). -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="#EBE4D5" />
+    <corners android:radius="24dp" />
+</shape>

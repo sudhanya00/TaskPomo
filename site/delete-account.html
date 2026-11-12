@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Delete your TaskPomo account</title>
+  <meta name="description" content="Delete your TaskPomo account and everything stored with it.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Geist:wght@400;500&family=Geist+Mono&display=swap" rel="stylesheet">
+  <style>
+    /* Ledger, always light, like the app. */
+    :root {
+      --paper: #F5F3EE;
+      --ink: #1E1D1A;
+      --muted: #8B867C;
+      --line: #DDD8CE;
+      --rust: #B5643F;
+      color-scheme: light;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font: 16px/1.55 Geist, system-ui, sans-serif;
+    }
+    main { max-width: 560px; margin: 0 auto; padding: 56px 16px 72px; }
+    .eyebrow {
+      font: 12px/1 "Geist Mono", ui-monospace, monospace;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    h1 {
+      font: 400 44px/1.05 "Instrument Serif", Georgia, serif;
+      margin: 14px 0 22px;
+    }
+    p { margin: 0 0 14px; }
+    .muted { color: var(--muted); }
+    ul { margin: 0 0 18px; padding: 0; list-style: none; border-top: 1px solid var(--line); }
+    li { padding: 11px 0; border-bottom: 1px solid var(--line); }
+    hr { border: 0; border-top: 1px solid var(--line); margin: 28px 0; }
+    button {
+      display: block;
+      width: 100%;
+      height: 52px;
+      border-radius: 8px;
+      font: 500 15px Geist, system-ui, sans-serif;
+      cursor: pointer;
+      border: 1px solid var(--ink);
+      background: transparent;
+      color: var(--ink);
+      margin-top: 10px;
+    }
+    button.filled { background: var(--ink); color: var(--paper); }
+    button.danger { background: var(--rust); border-color: var(--rust); color: #fff; }
+    button:disabled { opacity: .5; cursor: default; }
+    .progress { height: 1px; background: var(--line); overflow: hidden; margin: 18px 0 10px; }
+    .progress::after {
+      content: ""; display: block; height: 1px; width: 30%;
+      background: var(--ink); animation: slide 1.1s linear infinite;
+    }
+    @keyframes slide { from { transform: translateX(-100%); } to { transform: translateX(340%); } }
+    [hidden] { display: none !important; }
+    .mono { font-family: "Geist Mono", ui-monospace, monospace; font-size: 14px; }
+  </style>
+</head>
+<body>
+<main>
+  <div class="eyebrow">TaskPomo</div>
+  <h1>Delete your account</h1>
+
+  <p>The quickest way is in the app: <strong>Me</strong>, then <strong>Delete account</strong> at the bottom.
+    If you no longer have the app, you can do it here.</p>
+  <p class="muted">Deleting removes, for good:</p>
+  <ul>
+    <li>Your tasks, sessions, notes and streaks</li>
+    <li>Your points, freezes and points history, including scroll minutes</li>
+    <li>Your recaps, monthly notes and Wrapped</li>
+    <li>Your sign-in with TaskPomo</li>
+  </ul>
+  <p class="muted">Nothing is kept afterwards. To keep a copy, export a CSV from the app first (Me, Export data as CSV).
+    Deleting here doesn’t remove the app from your phone; uninstall it there.</p>
+
+  <hr>
+
+  <section id="signed-out">
+    <p>Sign in with the Google account you use in TaskPomo.</p>
+    <button class="filled" id="sign-in">Sign in with Google</button>
+  </section>
+
+  <section id="signed-in" hidden>
+    <p>Signed in as <span class="mono" id="who"></span>.</p>
+    <button class="danger" id="delete">Delete my account and data</button>
+    <button id="sign-out">Sign out</button>
+  </section>
+
+  <section id="working" hidden>
+    <p>Deleting your account. Keep this page open until it finishes.</p>
+    <div class="progress"></div>
+  </section>
+
+  <section id="done" hidden>
+    <p><strong>Your account and data were deleted.</strong></p>
+    <p class="muted">If you use TaskPomo again, it starts from nothing.</p>
+  </section>
+
+  <p id="error" class="muted" role="alert"></p>
+</main>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+  import {
+    getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut, deleteUser,
+  } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+  import {
+    getFirestore, collection, query, limit, getDocs, writeBatch, doc, deleteDoc,
+  } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+
+  // The project's web app (lib/firebase_options.dart). These identify the
+  // project; access is controlled by sign-in and Firestore rules.
+  const app = initializeApp({
+    apiKey: "AIzaSyBwA9sBYq-UdUac0rhdjXDIPglgGsbLb3A",
+    appId: "1:177004992959:web:b96086641121e53af4e90a",
+    messagingSenderId: "177004992959",
+    projectId: "taskpomo-d5f21f",
+    authDomain: "taskpomo-d5f21f.firebaseapp.com",
+  });
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  // Must match Repo.collections in lib/data/repo.dart.
+  const COLLECTIONS = ["tasks", "days", "sessions", "ledger", "meta", "scroll"];
+
+  const $ = (id) => document.getElementById(id);
+  const show = (id) => {
+    for (const s of ["signed-out", "signed-in", "working", "done"]) $(s).hidden = s !== id;
+  };
+  const fail = (text) => { $("error").textContent = text; };
+  let finished = false;
+
+  onAuthStateChanged(auth, (user) => {
+    if (finished) return;
+    if (user) {
+      $("who").textContent = user.email || "your Google account";
+      show("signed-in");
+    } else {
+      show("signed-out");
+    }
+  });
+
+  $("sign-in").onclick = async () => {
+    fail("");
+    try {
+      await signInWithPopup(auth, new GoogleAuthProvider());
+    } catch (e) {
+      if (e.code !== "auth/popup-closed-by-user" && e.code !== "auth/cancelled-popup-request") {
+        fail("Sign-in didn’t go through (" + e.code + "). Try again.");
+      }
+    }
+  };
+
+  $("sign-out").onclick = () => signOut(auth);
+
+  $("delete").onclick = async () => {
+    fail("");
+    const user = auth.currentUser;
+    if (!user) return;
+    if (!confirm("Delete your TaskPomo account and everything in it? This can’t be undone.")) return;
+    show("working");
+    try {
+      // Firebase only deletes an account after a recent sign-in.
+      const signedInAt = Date.parse(user.metadata.lastSignInTime || "") || 0;
+      if (Date.now() - signedInAt > 4 * 60 * 1000) {
+        await signInWithPopup(auth, new GoogleAuthProvider());
+      }
+      for (const name of COLLECTIONS) {
+        const col = collection(db, "users", user.uid, name);
+        for (;;) {
+          const page = await getDocs(query(col, limit(400)));
+          if (page.empty) break;
+          const batch = writeBatch(db);
+          page.docs.forEach((d) => batch.delete(d.ref));
+          await batch.commit();
+        }
+      }
+      await deleteDoc(doc(db, "users", user.uid));
+      finished = true;
+      await deleteUser(user);
+      show("done");
+    } catch (e) {
+      console.error(e);
+      show(auth.currentUser ? "signed-in" : "signed-out");
+      fail(e.code === "auth/requires-recent-login"
+        ? "Please sign in again, then delete."
+        : "It stopped partway (" + (e.code || e.message) + "). Try again to finish deleting.");
+    }
+  };
+</script>
+</body>
+</html>

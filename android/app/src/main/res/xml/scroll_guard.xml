@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Only window changes are needed to know which app is in front. Window
+     content is never read. Not an accessibility tool in Google Play's sense
+     (it doesn't help people with disabilities), so it says so; the app shows
+     its own disclosure before setup. -->
+<accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
+    android:accessibilityEventTypes="typeWindowStateChanged"
+    android:accessibilityFeedbackType="feedbackGeneric"
+    android:accessibilityFlags="flagDefault"
+    android:canRetrieveWindowContent="false"
+    android:isAccessibilityTool="false"
+    android:description="@string/guard_description"
+    android:notificationTimeout="200"
+    android:settingsActivity="com.sudhanya.taskpomo.MainActivity" />

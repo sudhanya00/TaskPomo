@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_description">Pomo and what\'s left today</string>
+    <string name="guard_label">TaskPomo scroll minutes</string>
+    <string name="guard_description">Counts time in the apps you chose to limit and pauses them when your TaskPomo points run out. During a focus session it notes which apps you open, so that time can be left out. It only sees which app is open, never what is on screen.</string>
+</resources>

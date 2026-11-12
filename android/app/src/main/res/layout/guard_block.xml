@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Shown over a limited app when its points are used up. Names no task. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/paper"
+    android:clickable="true"
+    android:focusable="true"
+    android:orientation="vertical"
+    android:paddingStart="28dp"
+    android:paddingTop="64dp"
+    android:paddingEnd="28dp"
+    android:paddingBottom="36dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="monospace"
+        android:letterSpacing="0.14"
+        android:text="SCROLL MINUTES"
+        android:textColor="@color/muted"
+        android:textSize="11sp" />
+
+    <FrameLayout
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/instrument_serif"
+        android:includeFontPadding="false"
+        android:letterSpacing="-0.03"
+        android:text="0"
+        android:textColor="@color/ink"
+        android:textSize="132sp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/instrument_serif_italic"
+        android:text="minutes left."
+        android:textColor="@color/muted"
+        android:textSize="36sp" />
+
+    <TextView
+        android:id="@+id/guard_body"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:lineSpacingMultiplier="1.35"
+        android:textColor="@color/muted"
+        android:textSize="15sp" />
+
+    <FrameLayout
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <TextView
+        android:id="@+id/guard_open"
+        android:layout_width="match_parent"
+        android:layout_height="54dp"
+        android:background="@drawable/btn_ink"
+        android:gravity="center"
+        android:text="Open TaskPomo"
+        android:textColor="@color/paper"
+        android:textSize="15sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/guard_grace"
+        android:layout_width="match_parent"
+        android:layout_height="54dp"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/btn_line"
+        android:gravity="center"
+        android:text="Use 5 grace minutes · repaid from your next points"
+        android:textColor="@color/ink"
+        android:textSize="14sp" />
+
+    <TextView
+        android:id="@+id/guard_home"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginTop="6dp"
+        android:gravity="center"
+        android:text="Go home"
+        android:textColor="@color/muted"
+        android:textSize="14sp" />
+</LinearLayout>

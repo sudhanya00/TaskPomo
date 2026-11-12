@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The TaskPomo mark: a watch dial of 12 ticks, the first few inked, and a
+     rust dot where the round has got to. Same idea as the timer screen. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp" android:height="108dp"
+    android:viewportWidth="108" android:viewportHeight="108">
+    <path android:strokeColor="#1E1D1A" android:strokeWidth="3" android:strokeLineCap="round" android:pathData="M54.00,35.00 L54.00,28.00" />
+    <path android:strokeColor="#1E1D1A" android:strokeWidth="3" android:strokeLineCap="round" android:pathData="M63.50,37.55 L67.00,31.48" />
+    <path android:strokeColor="#1E1D1A" android:strokeWidth="3" android:strokeLineCap="round" android:pathData="M70.45,44.50 L76.52,41.00" />
+    <path android:strokeColor="#1E1D1A" android:strokeWidth="3" android:strokeLineCap="round" android:pathData="M73.00,54.00 L80.00,54.00" />
+    <path android:strokeColor="#1E1D1A" android:strokeWidth="3" android:strokeLineCap="round" android:pathData="M70.45,63.50 L76.52,67.00" />
+    <path android:strokeColor="#401E1D1A" android:strokeWidth="3" android:strokeLineCap="round" android:pathData="M63.50,70.45 L67.00,76.52" />
+    <path android:strokeColor="#401E1D1A" android:strokeWidth="3" android:strokeLineCap="round" android:pathData="M54.00,73.00 L54.00,80.00" />
+    <path android:strokeColor="#401E1D1A" android:strokeWidth="3" android:strokeLineCap="round" android:pathData="M44.50,70.45 L41.00,76.52" />
+    <path android:strokeColor="#401E1D1A" android:strokeWidth="3" android:strokeLineCap="round" android:pathData="M37.55,63.50 L31.48,67.00" />
+    <path android:strokeColor="#401E1D1A" android:strokeWidth="3" android:strokeLineCap="round" android:pathData="M35.00,54.00 L28.00,54.00" />
+    <path android:strokeColor="#401E1D1A" android:strokeWidth="3" android:strokeLineCap="round" android:pathData="M37.55,44.50 L31.48,41.00" />
+    <path android:strokeColor="#401E1D1A" android:strokeWidth="3" android:strokeLineCap="round" android:pathData="M44.50,37.55 L41.00,31.48" />
+    <path android:fillColor="#B5643F" android:pathData="M68.98,72.38 a3.4,3.4 0 1,0 6.8,0 a3.4,3.4 0 1,0 -6.8,0" />
+</vector>

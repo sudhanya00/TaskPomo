@@ -1,0 +1,372 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Ledger widget. Private by design: no task names or icons, only the
+     streak, the week, how much is left, and numbered progress lines. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_bg_0"
+    android:orientation="horizontal"
+    android:padding="18dp">
+
+    <LinearLayout
+        android:layout_width="104dp"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="monospace"
+            android:letterSpacing="0.14"
+            android:text="MINUTES"
+            android:textColor="@color/muted"
+            android:textSize="9.5sp" />
+
+        <ImageView
+            android:id="@+id/minutes"
+            android:layout_width="match_parent"
+            android:layout_height="84dp"
+            android:layout_marginTop="6dp"
+            android:contentDescription="Minutes today"
+            android:scaleType="fitStart" />
+
+        <FrameLayout
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/week0"
+                    android:layout_width="9dp"
+                    android:layout_height="9dp"
+                    
+                    android:src="@drawable/week_future" />
+
+                <ImageView
+                    android:id="@+id/week1"
+                    android:layout_width="9dp"
+                    android:layout_height="9dp"
+                    android:layout_marginStart="4dp"
+                    android:src="@drawable/week_future" />
+
+                <ImageView
+                    android:id="@+id/week2"
+                    android:layout_width="9dp"
+                    android:layout_height="9dp"
+                    android:layout_marginStart="4dp"
+                    android:src="@drawable/week_future" />
+
+                <ImageView
+                    android:id="@+id/week3"
+                    android:layout_width="9dp"
+                    android:layout_height="9dp"
+                    android:layout_marginStart="4dp"
+                    android:src="@drawable/week_future" />
+
+                <ImageView
+                    android:id="@+id/week4"
+                    android:layout_width="9dp"
+                    android:layout_height="9dp"
+                    android:layout_marginStart="4dp"
+                    android:src="@drawable/week_future" />
+
+                <ImageView
+                    android:id="@+id/week5"
+                    android:layout_width="9dp"
+                    android:layout_height="9dp"
+                    android:layout_marginStart="4dp"
+                    android:src="@drawable/week_future" />
+
+                <ImageView
+                    android:id="@+id/week6"
+                    android:layout_width="9dp"
+                    android:layout_height="9dp"
+                    android:layout_marginStart="4dp"
+                    android:src="@drawable/week_future" />
+
+        </LinearLayout>
+    </LinearLayout>
+
+    <FrameLayout
+        android:layout_width="1dp"
+        android:layout_height="match_parent"
+        android:layout_marginStart="2dp"
+        android:layout_marginEnd="16dp"
+        android:background="@color/hairline" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/eyebrow"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="monospace"
+            android:letterSpacing="0.14"
+            android:text="TODAY"
+            android:textColor="@color/muted"
+            android:textSize="9.5sp" />
+
+        <ImageView
+            android:id="@+id/headline"
+            android:layout_width="match_parent"
+            android:layout_height="36dp"
+            android:layout_marginTop="6dp"
+            android:contentDescription="Today"
+            android:scaleType="fitStart" />
+
+        <Chronometer
+            android:id="@+id/chrono"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:fontFamily="monospace"
+            android:textColor="@color/ink"
+            android:textSize="24sp"
+            android:visibility="gone" />
+
+        <LinearLayout
+            android:id="@+id/rows"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginTop="8dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:id="@+id/row1"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/row1_index"
+                    android:layout_width="24dp"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="monospace"
+                    android:textColor="@color/muted"
+                    android:textSize="10sp" />
+
+                <ProgressBar
+                    android:id="@+id/row1_bar"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="0dp"
+                    android:layout_height="1.5dp"
+                    android:layout_weight="1"
+                    android:max="100"
+                    android:progressDrawable="@drawable/widget_progress" />
+
+                <TextView
+                    android:id="@+id/row1_value"
+                    android:layout_width="44dp"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="monospace"
+                    android:gravity="end"
+                    android:textColor="@color/muted"
+                    android:textSize="10sp" />
+
+                <TextView
+                    android:id="@+id/row1_streak"
+                    android:layout_width="34dp"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="monospace"
+                    android:gravity="end"
+                    android:textColor="@color/ink"
+                    android:textSize="10sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/row2"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/row2_index"
+                    android:layout_width="24dp"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="monospace"
+                    android:textColor="@color/muted"
+                    android:textSize="10sp" />
+
+                <ProgressBar
+                    android:id="@+id/row2_bar"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="0dp"
+                    android:layout_height="1.5dp"
+                    android:layout_weight="1"
+                    android:max="100"
+                    android:progressDrawable="@drawable/widget_progress" />
+
+                <TextView
+                    android:id="@+id/row2_value"
+                    android:layout_width="44dp"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="monospace"
+                    android:gravity="end"
+                    android:textColor="@color/muted"
+                    android:textSize="10sp" />
+
+                <TextView
+                    android:id="@+id/row2_streak"
+                    android:layout_width="34dp"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="monospace"
+                    android:gravity="end"
+                    android:textColor="@color/ink"
+                    android:textSize="10sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/row3"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/row3_index"
+                    android:layout_width="24dp"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="monospace"
+                    android:textColor="@color/muted"
+                    android:textSize="10sp" />
+
+                <ProgressBar
+                    android:id="@+id/row3_bar"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="0dp"
+                    android:layout_height="1.5dp"
+                    android:layout_weight="1"
+                    android:max="100"
+                    android:progressDrawable="@drawable/widget_progress" />
+
+                <TextView
+                    android:id="@+id/row3_value"
+                    android:layout_width="44dp"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="monospace"
+                    android:gravity="end"
+                    android:textColor="@color/muted"
+                    android:textSize="10sp" />
+
+                <TextView
+                    android:id="@+id/row3_streak"
+                    android:layout_width="34dp"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="monospace"
+                    android:gravity="end"
+                    android:textColor="@color/ink"
+                    android:textSize="10sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/row4"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/row4_index"
+                    android:layout_width="24dp"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="monospace"
+                    android:textColor="@color/muted"
+                    android:textSize="10sp" />
+
+                <ProgressBar
+                    android:id="@+id/row4_bar"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="0dp"
+                    android:layout_height="1.5dp"
+                    android:layout_weight="1"
+                    android:max="100"
+                    android:progressDrawable="@drawable/widget_progress" />
+
+                <TextView
+                    android:id="@+id/row4_value"
+                    android:layout_width="44dp"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="monospace"
+                    android:gravity="end"
+                    android:textColor="@color/muted"
+                    android:textSize="10sp" />
+
+                <TextView
+                    android:id="@+id/row4_streak"
+                    android:layout_width="34dp"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="monospace"
+                    android:gravity="end"
+                    android:textColor="@color/ink"
+                    android:textSize="10sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/row5"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/row5_index"
+                    android:layout_width="24dp"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="monospace"
+                    android:textColor="@color/muted"
+                    android:textSize="10sp" />
+
+                <ProgressBar
+                    android:id="@+id/row5_bar"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="0dp"
+                    android:layout_height="1.5dp"
+                    android:layout_weight="1"
+                    android:max="100"
+                    android:progressDrawable="@drawable/widget_progress" />
+
+                <TextView
+                    android:id="@+id/row5_value"
+                    android:layout_width="44dp"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="monospace"
+                    android:gravity="end"
+                    android:textColor="@color/muted"
+                    android:textSize="10sp" />
+
+                <TextView
+                    android:id="@+id/row5_streak"
+                    android:layout_width="34dp"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="monospace"
+                    android:gravity="end"
+                    android:textColor="@color/ink"
+                    android:textSize="10sp" />
+            </LinearLayout>
+
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>
