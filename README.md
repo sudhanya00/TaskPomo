@@ -1,127 +1,173 @@
 # TaskPomo
 
-A few minutes a day, every day. Duolingo-style streaks for anything you want to
-practise: give a task a daily target and the days it's due, then work on it in
-pomodoro sessions. The sessions add up. Hit the target on a due day and the
-streak lives on.
+**Duolingo-style streaks for anything you practise, built on pomodoro sessions.**
+Give a task a daily target and the days it's due, work on it in focus
+sessions, and keep a streak per task. Points you earn buy streak freezes,
+and can also be spent as minutes on the apps you're trying to use less.
 
-Flutter app for Android (with a homescreen widget) and the web, backed by
-Firebase: Google sign-in, Firestore, Hosting, and Firebase AI Logic (Gemini) for
-the fun recap.
+![Flutter](https://img.shields.io/badge/Flutter-3.4x-02569B?logo=flutter&logoColor=white)
+![Dart](https://img.shields.io/badge/Dart-3-0175C2?logo=dart&logoColor=white)
+![Kotlin](https://img.shields.io/badge/Kotlin-Android-7F52FF?logo=kotlin&logoColor=white)
+![Firebase](https://img.shields.io/badge/Firebase-Auth%20%7C%20Firestore%20%7C%20AI%20Logic-FFCA28?logo=firebase&logoColor=black)
+![Tests](https://img.shields.io/badge/tests-42%20passing-2E7D32)
+
+I built TaskPomo for my own habits, and use it daily on my phone. It started
+as a personal tool and is now being prepared for Google Play.
+
+## Highlights
+
+- **Fair streaks, per task.** Each task keeps its own streak, judged only on
+  the days it's due. Points scale with how long a task is, and freezes cost
+  more for short tasks than long ones, so neither is a loophole.
+- **Private by design.** The homescreen widget, notifications and lock screen
+  never show task names, only minutes, counts and streaks. The app-limit
+  guard sees which app is in front, never what's on screen, and app names
+  stay on the phone.
+- **Points as a scrolling budget.** One point buys one minute on the apps you
+  choose to limit (Instagram, YouTube…). An Android accessibility service
+  counts the time and covers the app with a pause page when the points run
+  out, with a live countdown in the notification shade.
+- **Honest sessions.** During a focus session, time in other apps is noted.
+  Social apps and games never count; anything ambiguous (YouTube during
+  music practice could be a tutorial or Shorts) is asked about once, and the
+  answer can be remembered per task.
+- **Insights for data people.** Hand-drawn charts (CustomPainter): the year
+  in squares, focus by weekday and hour, session-length histogram, target vs
+  actual, streak runs, habits that travel together. Every mark can be tapped
+  to inspect. CSV export of the full ledger, with a README describing every
+  column, ready for analysis or an AI agent.
+- **Grounded AI recaps.** A weekly note, a monthly recap and a yearly
+  Wrapped, written by Gemini through Firebase AI Logic. The prompts carry
+  exact numbers and your own session notes, with rules against guessing what
+  you did from a task's name.
+- **A homescreen widget that fills its space.** Native RemoteViews in Kotlin.
+  Widgets can't use custom fonts, so the serif numerals are drawn into
+  bitmaps. The paper background yellows through the day while work is left.
+
+## Engineering notes
+
+- **Rules are pure Dart and tested.** Streaks, points, milestones, freezes,
+  paper aging, analytics, CSV export, the scroll allowance and the session
+  check live in `lib/logic/`, with no Flutter or Firebase imports, and are
+  covered by unit tests.
+- **Time comes from timestamps, not ticking.** A session stores when each
+  segment started, so the timer stays right if the app is killed or the
+  phone sleeps. Time left out of a session is kept apart from the timer's raw
+  total, so pausing never subtracts it twice.
+- **Offline first.** Firestore with offline persistence; every user's data
+  sits under `users/{uid}` behind owner-only security rules.
+- **Dart and Kotlin share one source of truth.** The accessibility service
+  counts usage in on-device storage. The app pays for it in points the next
+  time it runs, and tells the service what the remaining points buy. Neither
+  side has to be running for the other to stay correct.
+- **Store readiness.** A prominent in-app disclosure and consent before the
+  accessibility setup, the service declared as not an accessibility tool,
+  account deletion in the app and on the web
+  ([taskpomo-d5f21f.web.app/delete-account](https://taskpomo-d5f21f.web.app/delete-account)),
+  App Check (Play Integrity) for Play installs, and upload-key signing.
+
+## Architecture
+
+```mermaid
+flowchart LR
+  subgraph Flutter app
+    UI[Screens<br/>Today, Timer, Insights, Me] --> State[AppController<br/>TimerController]
+    State --> Logic[lib/logic<br/>pure Dart rules]
+    State --> Repo[Repo]
+    State --> Services[Services<br/>notifications, widget sync,<br/>AI recap, scroll guard]
+  end
+  Repo --> Firestore[(Firestore<br/>users/uid/...)]
+  Services --> Gemini[Gemini via<br/>Firebase AI Logic]
+  Services -- home_widget --> Widget[PomoWidgetProvider<br/>Kotlin, RemoteViews]
+  Services -- MethodChannel --> Activity[MainActivity]
+  Activity --> Store[(GuardStore<br/>on-device)]
+  Guard[ScrollGuardService<br/>accessibility] --> Store
+```
 
 ## How it works
 
 | | |
 |---|---|
-| **Task** | Name, icon, colour, daily target (5 min to hours), schedule (daily / weekdays / weekends / custom days). |
-| **Sessions** | Start a task to start a pomodoro (25 min by default, configurable). Keep it running through as many pomodoros as you like, pause, or stop whenever. All of today's sessions count toward the target. |
-| **Streak** | Per task: counts that task's due days that hit their target. Missing one task never touches the others. Days that aren't due never break it. A due day you miss breaks it at midnight. |
-| **Clean streak** | The same, but reset by freezes. Milestone bonuses are paid on this one. |
-| **Points** | Scale with the work: a task earns about 1 point per 3 minutes of its daily target (5 min → 2, 15 min → 5, 1 h → 20, 2 h → 40). Clean-streak bonuses pay a modest multiple of the task's daily points: 10 and 20 days 1×, 50 days 3×, 100 and 150 days 5×, 200 days 6×, 300 days 7×, 365 days 10×, then 7× every hundred. A year of milestones totals 38 days' worth, about a tenth of what the practice earns. |
-| **Freezes** | Per task and per day. One day costs 5 days of that task's points for tasks of 5 min or less, sliding (log scale) to 3 days' worth at 2 h or more: 5 min → 10, 15 min → 22, 1 h → 69, 2 h → 120. Freeze one task from its timer menu, or several at once (Me → Going away?, pick tasks and days). With **auto-freeze** on, a missed day spends points if you have enough. Freeze a day and then do it anyway, and you get the points back. |
-| **Look** | "Ledger": warm paper, ink type, Instrument Serif numerals with Geist and Geist Mono, hairline rules, one rust accent for "today". Always light. No emoji. The paper yellows through the day while work is left (time since 9 am × share of today's minutes left) and is fresh again once everything is done. |
-| **Privacy** | The homescreen widget and notifications never show task names or icons. The widget shows minutes done today, the week (each day filled by how much got done), how many are left, minutes to go, and numbered progress lines (01, 02…) with each task's streak. |
-| **Insights** | Week / Month / Year / All. Hours, days showed up, sessions, median session, best day; the year in squares; where the time went (by task, stacked); when you focus (weekday × hour); session lengths; target vs actual; streak runs per task; which habits travel together. Tap any mark for its numbers. Plus the weekly note from Gemini. |
-| **Monthly recap** | On the 1st a notification (no task names) opens last month's page: totals vs the month before, a calendar, a written note from your numbers and session notes, and a per-task table. Past months stay under Insights → Recaps. |
-| **Wrapped** | A year in review as tap-through story pages, in December and for every past year. A preview of the year so far is at the bottom of Insights. |
-| **Export** | Insights or Me → Export as CSV: tasks.csv, days.csv (the full task-by-day ledger), sessions.csv (with notes) and points.csv, plus a README describing every column, via the share sheet. |
-| **Scroll minutes** | Points double as time on apps you choose to limit (Me → Scroll minutes): 1 point = 1 minute, all chosen apps combined. A reserve (default: two freezes of your biggest task) can't be scrolled away. At zero a full-screen page covers the app; once a day 5 grace minutes are available, repaid from future points. Uses an Android accessibility service that only sees which app is in front (window changes from real app screens), never screen content. Needs a one-time setup: App info → ⋮ → Allow restricted settings, then Accessibility → TaskPomo scroll minutes → on. |
-| **Streak moment** | Completing a day opens a full-screen page where the streak number rolls over, the dial moves toward the next bonus and today's square fills; ink page and a dial sweep on bonus milestones. |
+| **Task** | Name, icon, daily target (5 minutes to hours) and schedule (daily, weekdays, weekends or custom days). |
+| **Sessions** | Starting a task starts a pomodoro (25 minutes by default, or the task's target if shorter). Keep going through as many rounds as you like, pause, or stop. All of a day's sessions add up toward the target. |
+| **Streak** | Per task, counting due days that hit their target. Days that aren't due never break it; missing one task never touches the others. |
+| **Points** | About 1 point per 3 minutes of a task's daily target (15 min → 5, 1 h → 20, 2 h → 40). Clean-streak milestones (10, 20, 50, 100… days) pay a modest multiple of the task's daily points. |
+| **Freezes** | Per task and per day. A day costs 5 days of that task's points for tasks of 5 minutes or less, sliding to 3 days' worth at 2 hours or more. Freeze one task from its menu, or several for a trip. Optional auto-freeze spends points on a missed day. |
+| **Scroll minutes** | 1 point = 1 minute across all limited apps combined. A reserve for freezes can't be scrolled away. At zero the apps pause; once a day there are 5 grace minutes, repaid from future points. |
+| **Session check** | With the guard on, apps opened while a session's timer runs are judged by their declared category: social apps, games and limited apps never count; video, browsers and anything else are asked about after the session. |
+| **Streak moment** | Completing a day opens a full-screen page where the streak number rolls over, the dial moves toward the next bonus and today's square fills. |
+| **Look** | "Ledger": warm paper, Instrument Serif numerals with Geist and Geist Mono, hairline rules and one rust accent. Always light, no emoji. |
 
-The rules live in `lib/logic/streaks.dart` (constants at the top) and are
-covered by `test/widget_test.dart`.
+The constants behind these rules are at the top of `lib/logic/streaks.dart`
+and `lib/logic/scroll.dart`.
 
 ## Project layout
 
 ```
 lib/
-  logic/        streak + points rules, headline wording, week strip, paper aging, analytics, CSV (pure Dart, tested)
-  ui/           Ledger components, the chart kit (charts.dart) and the icon set
-  models/       Task, DayLog, Profile, LedgerEntry
-  data/repo.dart  all Firestore reads/writes (users/{uid}/tasks|days|sessions|ledger)
-  state/        AppController (live data, daily streak check), TimerController (pomodoro)
-  services/     notifications, widget sync, Gemini recap
-  screens/      Today, Timer, Task detail/editor, Insights, Me, Sign-in
-android/app/src/main/kotlin/.../PomoWidgetProvider.kt   the homescreen widget
-assets/fonts/          Instrument Serif, Geist, Geist Mono (SIL Open Font License)
+  logic/      rules: streaks, points, analytics, CSV export, scroll allowance, session check (pure Dart)
+  models/     Task, DayLog, Session, Profile, LedgerEntry
+  data/       repo.dart: every Firestore read and write
+  state/      AppController (live data, daily streak check), TimerController (sessions)
+  services/   notifications, widget sync, Gemini recaps, scroll guard bridge, account, App Check
+  screens/    Today, Timer, Task, Insights, Monthly recap, Wrapped, Me, Streak moment
+  ui/         Ledger components, chart kit, icon set
+android/app/src/main/kotlin/…
+  PomoWidgetProvider.kt   homescreen widget
+  ScrollGuardService.kt   accessibility service: counting, pause page, live countdown
+  GuardStore.kt           on-device state shared by the service and the app
+  MainActivity.kt         MethodChannel bridge
+site/                     static pages on Firebase Hosting (account deletion)
+test/                     unit tests for the rules and the timer
 ```
 
-## Setup
+## Tech stack
 
-Flutter is installed at `C:\src\flutter`. Add `C:\src\flutter\bin` to your
-PATH (Windows search → "Edit the system environment variables" → Path).
+| Area | Choice |
+|---|---|
+| App | Flutter, Dart 3, provider |
+| Android | Kotlin: RemoteViews widget, AccessibilityService, overlay window, MethodChannel |
+| Backend | Firebase Authentication (Google), Cloud Firestore, Hosting, App Check |
+| AI | Gemini through Firebase AI Logic (`firebase_ai`), JSON responses |
+| Other | flutter_local_notifications, home_widget, share_plus |
+| Type and icons | Instrument Serif, Geist, Geist Mono (SIL OFL), Phosphor (MIT), bundled |
 
-### 1. Android tooling (once)
+## Running it
 
-1. Install [Android Studio](https://developer.android.com/studio). On first
-   launch let it install the Android SDK.
-2. In Android Studio: Settings → Languages & Frameworks → Android SDK → SDK Tools,
-   tick **Android SDK Command-line Tools**.
-3. Accept the licences and check everything is green:
+You need Flutter (stable), the Android SDK, and a Firebase project of your
+own.
+
+1. In the [Firebase console](https://console.firebase.google.com), create a
+   project and enable **Authentication → Google**, **Firestore**, and
+   **AI Logic** (Gemini Developer API).
+2. Connect the app and deploy the rules:
    ```
-   flutter doctor --android-licenses
-   flutter doctor
-   ```
-
-### 2. Firebase project (once)
-
-1. In the [Firebase console](https://console.firebase.google.com) create a project
-   (the free Spark plan is enough).
-2. **Authentication** → Get started → Sign-in method → enable **Google**.
-3. **Firestore Database** → Create database (production mode, region near you).
-4. **AI Logic** → Get started → choose the **Gemini Developer API** (free tier).
-5. Connect the app:
-   ```
-   firebase login
    dart pub global activate flutterfire_cli
-   flutterfire configure --platforms=android,web
-   ```
-   Pick your project. This replaces `lib/firebase_options.dart` and adds
-   `android/app/google-services.json`.
-6. Deploy the security rules (each user can only touch their own data):
-   ```
-   firebase use --add        # pick the project
+   flutterfire configure --platforms=android
+   firebase use --add
    firebase deploy --only firestore
    ```
-7. Add your debug key's SHA-1 to the Android app in Firebase (Project settings →
-   Your apps → Android → Add fingerprint). Get it with:
+3. Add your debug key's SHA-1 to the Android app in Firebase
+   (`cd android && ./gradlew signingReport`).
+4. Run on a phone with USB debugging on:
    ```
-   cd android && gradlew signingReport
+   flutter run
    ```
 
-### 3. Run it
+Release builds are signed with the key described in `android/key.properties`
+(not in the repo). Without it they fall back to the debug key.
 
-Phone: enable Developer options → USB debugging, plug it in, then
-```
-flutter run
-```
+**Widget:** long-press the homescreen → Widgets → TaskPomo.
+**Scroll minutes:** Me → Scroll minutes → Set up, then switch on
+*TaskPomo scroll minutes* under Accessibility.
 
-Install a standalone build on your phone:
-```
-flutter build apk --release
-```
-and copy `build/app/outputs/flutter-apk/app-release.apk` to the phone.
-
-**Widget:** long-press the homescreen → Widgets → TaskPomo, and drag it out.
-Tapping a task row on the widget opens its timer.
-
-### 4. Web (optional)
+## Tests
 
 ```
-flutter build web
-firebase deploy --only hosting
+flutter test
 ```
 
-## Notes
-
-- Everything works offline; Firestore syncs when you're back online.
-- The running timer lives on the device (it survives the app being closed). It
-  shows a live counter in the notification shade and on the widget.
-- Pomodoro bells use inexact alarms, so with the screen off Android may ring
-  them a minute or so late.
-- The Gemini model is set in `lib/services/ai_recap.dart` (`AiRecap.model`).
-  The recap is cached per week, so normal use is about one call a week.
-- Colours live in `lib/theme.dart` (`Ledger.paper`) and, for the widget,
-  `android/app/src/main/res/values/colors.xml`. Keep the two in step.
-- Widgets can't use custom fonts, so the widget draws its serif number and
-  headline into bitmaps with the bundled Instrument Serif.
+42 tests cover streaks and missed days, milestones and bonuses, points and
+freeze costs, the week strip and paper aging, insights and analytics, the
+recap's input, CSV export, the scroll allowance, the session check rules, and
+the timer's handling of time spent in other apps.
